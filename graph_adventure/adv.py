@@ -33,56 +33,78 @@ inverseDirection = {
     "w": "e"
 }
 
-previousRoomID = None
-lastDirection = None
-# // 0
+# 1. Check if currentRoom is in Graph
+#   a. if it is in graph move to the next step
+#   b. else add currentRoomID to the graph
 
-while True:
-    currentRoomID = player.currentRoom.id
-    # 1. Check if currentRoom is in Graph
-    #   a. if it is in graph move to the next step
-    #   b. else add currentRoomID to the graph
-    if not currentRoomID in graph:
-        graph[currentRoomID] = {}
-
-    # 2. Check exit values
+# 2. Check exit values
     # a. If there are values (been here before):
-    if graph[currentRoomID]:
-        pass
         # i. if is there a ?, goto step 3
 
         # ii. else (we know all values) 
 
-    #   b. else add all exit values (first time to room)
-    else:
-        for exit in player.currentRoom.getExits():
+#   b. else add all exit values (first time to room)
+        # i. if there's a previousRoomID set the direction from which you came
+
+        # ii. if we don't know the value, set the exit direction to "?"
+
+# 3. Choose a direction to move
+#   a. if no "?" exists in graph
+#       i. break
+#   b. if there are "?" in exits
+    #   i. If an exit direction == "?" and travel to that room
+    #         #   b. else go back to previous room (using traversalPath)
+
+previousRoomID = None
+lastDirection = None
+counter = 0
+# // 0
+
+while True:
+    print(previousRoomID, lastDirection)
+    counter += 1
+    currentRoomID = player.currentRoom.id
+
+    if not currentRoomID in graph: # 1b.
+        graph[currentRoomID] = {}
+
+        for exit in player.currentRoom.getExits(): #2b.
             graph[currentRoomID][exit] = "?"
 
-            print(previousRoomID, currentRoomID)
-        if previousRoomID:
-            graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID
-        # if there's a previousRoomID set the direction from which you came
+        
+        if previousRoomID is not None: #2bi.
+            graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID    
 
-        # i. if we don't know the value, set the exit direction to "?"
+        for exit in graph[currentRoomID]: #3b.
 
-    # 3. Choose a direction to move
-        #   a. if no "?" exists in graph
-        #       i. break
-        #   b. else
-            #   a. If an exit direction == "?" and travel to that room
-    for exit in graph[currentRoomID]:
-        previousRoomID = currentRoomID
+            previousRoomID = currentRoomID
 
-        if graph[currentRoomID][exit]== "?":
-            player.travel(exit)
-            lastDirection = exit
-            break
-            #   b. else go back to previous room (using traversalPath)
-        else:
-            player.travel(inverseDirection[lastDirection])
-            lastDirection = inverseDirection[lastDirection]
-    break
-# print(graph)
+            if graph[currentRoomID][exit]== "?":
+                player.travel(exit)
+                traversalPath.append(exit)
+                graph[previousRoomID][exit] = player.currentRoom.id
+                lastDirection = exit
+                break
+            else:
+                player.travel(inverseDirection[lastDirection])
+                lastDirection = inverseDirection[lastDirection]
+    else: 
+        # room does exist
+        for exit in graph[currentRoomID]: #2a.
+
+            previousRoomID = currentRoomID
+
+            if graph[currentRoomID][exit]== "?": 
+                traversalPath.append(exit)
+                graph[previousRoomID][exit] = player.currentRoom.id
+                lastDirection = exit
+                break
+            else:
+                
+        
+    if counter == 10:
+        break
+print(graph)
 
     
     # graph[currentRoomID] = {}
