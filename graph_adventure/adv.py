@@ -107,7 +107,7 @@ def bfs(starting_room, graph):
             if graph[v][direction] == "?":
                 return path_to_directions(path, graph)   
             else:
-                print(q.queue)
+                pass
 
         if v not in visited:
             visited.add(v)
@@ -121,13 +121,10 @@ previousRoomID = None
 lastDirection = None
 counter = 0
 switch = True
-# // 0
 
 while switch:
     counter += 1
     currentRoomID = player.currentRoom.id
-    print(currentRoomID, "\n", graph, "\n")
-
 
     if not currentRoomID in graph:
         graph[currentRoomID] = {}
@@ -153,10 +150,11 @@ while switch:
     else:
         bfs_directions = bfs(currentRoomID, graph)
         previousRoomID = None
+
         if bfs_directions is None:
             switch = False
             break
-            
+
         for exit2 in bfs_directions:
             player.travel(exit2)
             traversalPath.append(exit2)
