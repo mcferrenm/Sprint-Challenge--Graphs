@@ -4,13 +4,32 @@ from world import World
 
 import random
 
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, value):
+        self.queue.append(value)
+
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+
+    def size(self):
+        return len(self.queue)
+
+
 # Load world
 world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 
 
-roomGraph={0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [(5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {'e': 7}]}
+roomGraph = {0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [
+                  (5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {'e': 7}]}
 # roomGraph={0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [(5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5, 'w': 11}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {'e': 7}], 9: [(1, 4), {'n': 8, 's': 10}], 10: [(1, 3), {'n': 9, 'e': 11}], 11: [(2, 3), {'w': 10, 'e': 6}]}
 # roomGraph = {0: [(3, 5), {'n': 1, 's': 5, 'e': 3, 'w': 7}], 1: [(3, 6), {'s': 0, 'n': 2, 'e': 12, 'w': 15}], 2: [(3, 7), {'s': 1}], 3: [(4, 5), {'w': 0, 'e': 4}], 4: [(5, 5), {'w': 3}], 5: [(3, 4), {'n': 0, 's': 6}], 6: [(3, 3), {'n': 5, 'w': 11}], 7: [(2, 5), {'w': 8, 'e': 0}], 8: [(1, 5), {
 #     'e': 7}], 9: [(1, 4), {'n': 8, 's': 10}], 10: [(1, 3), {'n': 9, 'e': 11}], 11: [(2, 3), {'w': 10, 'e': 6}], 12: [(4, 6), {'w': 1, 'e': 13}], 13: [(5, 6), {'w': 12, 'n': 14}], 14: [(5, 7), {'s': 13}], 15: [(2, 6), {'e': 1, 'w': 16}], 16: [(1, 6), {'n': 17, 'e': 15}], 17: [(1, 7), {'s': 16}]}
@@ -41,7 +60,7 @@ inverseDirection = {
     # a. If there are values (been here before):
         # i. if is there a ?, goto step 3
 
-        # ii. else (we know all values) 
+        # ii. else (we know all values)
 
 #   b. else add all exit values (first time to room)
         # i. if there's a previousRoomID set the direction from which you came
@@ -55,65 +74,108 @@ inverseDirection = {
     #   i. If an exit direction == "?" and travel to that room
     #         #   b. else go back to previous room (using traversalPath)
 
+def bfs(starting_room, graph):
+    q = Queue()
+
+    visited = set()
+
+    path_to_room = None
+
+    q.enqueue(starting_room)
+
+    while q.size() > 0:
+
+        v = q.dequeue()
+
+        for direction in graph[v]:
+            if graph[v][direction] == "?":
+                path_to_room = v
+                return path_to_room
+
+        if v not in visited:
+            visited.add(v)
+
+            for room in graph[v]:
+                q.enqueue(graph[v][room])
+
 previousRoomID = None
 lastDirection = None
 counter = 0
 # // 0
 
 while True:
-    print(previousRoomID, lastDirection)
     counter += 1
     currentRoomID = player.currentRoom.id
+    # print(previousRoomID, lastDirection, currentRoomID)
 
-    if not currentRoomID in graph: # 1b.
+    if not currentRoomID in graph:  # 1b.
         graph[currentRoomID] = {}
 
-        for exit in player.currentRoom.getExits(): #2b.
+        for exit in player.currentRoom.getExits():  # 2b.
             graph[currentRoomID][exit] = "?"
 
-        
-        if previousRoomID is not None: #2bi.
-            graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID    
+        if previousRoomID is not None:  # 2bi.
+            graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID
 
-        for exit in graph[currentRoomID]: #3b.
+        for exit in graph[currentRoomID]:  # 3b.
 
             previousRoomID = currentRoomID
 
-            if graph[currentRoomID][exit]== "?":
+            if graph[currentRoomID][exit] == "?":
                 player.travel(exit)
                 traversalPath.append(exit)
                 graph[previousRoomID][exit] = player.currentRoom.id
                 lastDirection = exit
                 break
             else:
-                player.travel(inverseDirection[lastDirection])
-                lastDirection = inverseDirection[lastDirection]
-    else: 
+                exit = inverseDirection[lastDirection]
+                player.travel(exit)
+                traversalPath.append(exit)
+                lastDirection = exit
+    else:
         # room does exist
-        for exit in graph[currentRoomID]: #2a.
+        for exit in graph[currentRoomID]:  # 2a.
 
             previousRoomID = currentRoomID
 
-            if graph[currentRoomID][exit]== "?": 
+            if graph[currentRoomID][exit] == "?":
+                player.travel(exit)
                 traversalPath.append(exit)
                 graph[previousRoomID][exit] = player.currentRoom.id
                 lastDirection = exit
                 break
-            else:
-                
+
+        """
+        1. bfs to find the nearest room with exits that == "?"
+        2. convert roomID to list of directions to follow
+        3. goto room and go back to the top
         
+        """
+       
+        print(bfs(currentRoomID, graph))
+        
+        break
+
+
+
+
+
+
     if counter == 10:
         break
 print(graph)
 
-    
+
+
+
+
     # graph[currentRoomID] = {}
     # graph[currentRoomID][inverseDirection[directionToTravel]] = previousRoomID
 
     # for exit in player.currentRoom.getExits():
     #     graph[currentRoomID][exit] = "?"
 
-    # # travels 
+    # # travels
     # previousRoomID = currentRoomID
 
     # for exit in graph[currentRoomID]:
