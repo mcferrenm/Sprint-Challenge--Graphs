@@ -71,6 +71,13 @@ inverseDirection = {
     #   i. If an exit direction == "?" and travel to that room
     #         #   b. else go back to previous room (using traversalPath)
 
+# BFS Strategy
+# 1. bfs to find the nearest room with exits that == "?"
+# 2. convert roomID to list of directions to follow
+# 3. goto room and go back to the top
+        
+
+
 def path_to_directions(path, graph):
     bft_directions = []
     idx = 1
@@ -122,19 +129,17 @@ while switch:
     print(currentRoomID, "\n", graph, "\n")
 
 
-    if not currentRoomID in graph:  # 1b.
+    if not currentRoomID in graph:
         graph[currentRoomID] = {}
-
-        for exit in player.currentRoom.getExits():  # 2b.
+        for exit in player.currentRoom.getExits():
             graph[currentRoomID][exit] = "?"
 
-    if previousRoomID is not None:  # 2bi.
+    if previousRoomID is not None:
         graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID
     
     directionToTravel = None
 
-    for exit in graph[currentRoomID]:  # 3b.
-        # 5: {'n': 0, 's': '?'}
+    for exit in graph[currentRoomID]:
         if graph[currentRoomID][exit] == "?":
             directionToTravel = exit
             break
@@ -146,162 +151,15 @@ while switch:
         graph[previousRoomID][directionToTravel] = player.currentRoom.id
         lastDirection = directionToTravel
     else:
-        """
-        1. bfs to find the nearest room with exits that == "?"
-        2. convert roomID to list of directions to follow
-        3. goto room and go back to the top
-        
-        """
         bfs_directions = bfs(currentRoomID, graph)
         previousRoomID = None
-        # print(bfs_directions)
         if bfs_directions is None:
             switch = False
             break
-
+            
         for exit2 in bfs_directions:
             player.travel(exit2)
             traversalPath.append(exit2)
-    # else:
-    #     # room does exist
-
-    #     if previousRoomID is not None:  # 2bi.
-    #         graph[currentRoomID][inverseDirection[lastDirection]] = previousRoomID
-
-    #     directionToTravel = None
-
-    #     for exit in graph[currentRoomID]:
-    #         previousRoomID = currentRoomID
-            
-
-    #         if graph[currentRoomID][exit] == "?":
-    #             directionToTravel = exit
-    #             break
-        
-    #     if directionToTravel is not None:
-    #         player.travel(directionToTravel)
-    #         traversalPath.append(directionToTravel)
-    #         graph[previousRoomID][directionToTravel] = player.currentRoom.id
-    #         lastDirection = directionToTravel
-
-        # for exit in graph[currentRoomID]:  # 2a.
-
-        #     previousRoomID = currentRoomID
-
-        #     if graph[currentRoomID][exit] == "?":
-        #         player.travel(exit)
-        #         traversalPath.append(exit)
-        #         graph[previousRoomID][exit] = player.currentRoom.id
-        #         lastDirection = exit
-        #         break          
-        
-        # break
-
-    # if counter == 12:
-    #     break
-
-
-
-
-
-    # graph[currentRoomID] = {}
-    # graph[currentRoomID][inverseDirection[directionToTravel]] = previousRoomID
-
-    # for exit in player.currentRoom.getExits():
-    #     graph[currentRoomID][exit] = "?"
-
-    # # travels
-    # previousRoomID = currentRoomID
-
-    # for exit in graph[currentRoomID]:
-    #     if graph[currentRoomID][exit]== "?":
-    #         player.travel(exit)
-    #         directionToTravel = exit
-    #         traversalPath.append(directionToTravel)
-    #         break
-    # # logs that direction, then loops.
-    # currentRoomID = player.currentRoom.id
-    # graph[previousRoomID][directionToTravel] = currentRoomID
-    # break
-
-    # if v not in visited:
-    #     # Mark it as visited (add it to the visited dict)
-    #     avail_rooms = player.currentRoom.getExits()
-
-    #     visited[v] = {r: "?" for r in avail_rooms}
-
-    #     for direction in visited[v]:
-    #         if visited[v][direction] == "?":
-    #             player.travel(direction)
-    #             visited[v][direction] = player.currentRoom.id
-    #             path.append(player.currentRoom.id)
-    #             s.push(path)
-    #             break
-# start loop
-
-# currentRoomID = player.currentRoom.id
-# graph[currentRoomID] = {}
-
-# for exit in player.currentRoom.getExits():
-#     graph[currentRoomID][exit] = "?"
-
-# directionToTravel = ''
-
-# for exit in graph[currentRoomID]:
-#     if graph[currentRoomID][exit]== "?":
-#         previousRoomID = currentRoomID
-#         player.travel(exit)
-#         directionToTravel = exit
-#         traversalPath.append(directionToTravel)
-#         break
-
-# currentRoomID = player.currentRoom.id
-# graph[currentRoomID] = {}
-
-# for exit in player.currentRoom.getExits():
-#     graph[currentRoomID][exit] = "?"
-
-# graph[previousRoomID][directionToTravel] = currentRoomID
-# graph[currentRoomID][inverseDirection[directionToTravel]] = previousRoomID
-
-# for exit in graph[currentRoomID]:
-#     if graph[currentRoomID][exit]== "?":
-#         player.travel(exit)
-#         directionToTravel = exit
-#         traversalPath.append(directionToTravel)
-#         break
-
-# previousRoomID = currentRoomID
-# currentRoomID = player.currentRoom.id
-# graph[currentRoomID] = {}
-
-# for exit in player.currentRoom.getExits():
-#     graph[currentRoomID][exit] = "?"
-
-# graph[previousRoomID][directionToTravel] = currentRoomID
-# graph[currentRoomID][inverseDirection[directionToTravel]] = previousRoomID
-
-
-# for exit in graph[currentRoomID]:
-#     if graph[currentRoomID][exit]== "?":
-#         player.travel(exit)
-#         directionToTravel = exit
-#         traversalPath.append(directionToTravel)
-#         break
-
-
-# previousRoomID = currentRoomID
-# currentRoomID = player.currentRoom.id
-
-# graph[currentRoomID] = {}
-
-# for exit in player.currentRoom.getExits():
-#     graph[currentRoomID][exit] = "?"
-
-# graph[previousRoomID][directionToTravel] = currentRoomID
-# graph[currentRoomID][inverseDirection[directionToTravel]] = previousRoomID
-
-# print(graph)
 
 # TRAVERSAL TEST
 visited_rooms = set()
